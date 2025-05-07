@@ -215,6 +215,7 @@ class Conv2d(torch.nn.Module):
 
     def forward(self, x):
         weight, bias, resample_filter = self.weight, self.bias, self.resample_filter
+        # print('Before: self.weight.dtype:', self.weight.dtype, 'self.bias.dtype:', self.bias.dtype, 'x.dtype:', x.dtype)
         if not self.amp_mode:
             if self.weight is not None and self.weight.dtype != x.dtype:
                 weight = self.weight.to(x.dtype)
@@ -226,6 +227,7 @@ class Conv2d(torch.nn.Module):
             ):
                 resample_filter = self.resample_filter.to(x.dtype)
 
+        # print('After: weight.dtype:', weight.dtype, 'bias.dtype:', bias.dtype, 'x.dtype:', x.dtype)
         w = weight if weight is not None else None
         b = bias if bias is not None else None
         f = resample_filter if resample_filter is not None else None
@@ -698,8 +700,8 @@ class UNetBlock(torch.nn.Module):
                 # w = AttentionOp.apply(q, k)
                 # a = torch.einsum("nqk,nck->ncq", w, v)
                 # Compute attention in one step
-                with amp.autocast(enabled=self.amp_mode):
-                    attn = torch.nn.functional.scaled_dot_product_attention(q, k, v)
+                # with amp.autocast(enabled=self.amp_mode):
+                attn = torch.nn.functional.scaled_dot_product_attention(q, k, v)
                 x = self.proj(attn.reshape(*x.shape)).add_(x)
                 x = x * self.skip_scale
 

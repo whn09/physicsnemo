@@ -144,6 +144,8 @@ def main(cfg: DictConfig) -> None:
             net_res.use_fp16 = True
     else:
         net_res = None
+        
+    print('net_res.use_fp16:', net_res.use_fp16)
 
     # load regression network, move to device, change precision
     if load_net_reg:
@@ -155,6 +157,8 @@ def main(cfg: DictConfig) -> None:
             net_reg.use_fp16 = True
     else:
         net_reg = None
+        
+    print('net_reg.use_fp16:', net_reg.use_fp16)
 
     # Reset since we are using a different mode.
     if cfg.generation.perf.use_torch_compile:
