@@ -73,7 +73,7 @@ training:
         lr_rampup: 10000000
         # Rampup for learning rate, in number of samples
     io:
-        regression_checkpoint_path: ./checkpoints_regression/UNet.0.200.mdlus
+        regression_checkpoint_path: <regression_checkpoint.mdlus>
         # Path to load the regression checkpoint
 
 # Additional parameters for validation

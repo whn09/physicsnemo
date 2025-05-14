@@ -68,9 +68,9 @@ generation:
     # List[str], time stamps in ISO 8601 format. Replace and list desired target
     # time stamps.
     io:
-        res_ckpt_filename: ./checkpoints_diffusion/EDMPrecondSuperResolution.0.200.mdlus
+        res_ckpt_filename: <diffusion_checkpoint.mdlus>
         # Path to checkpoint file for the diffusion model  
-        reg_ckpt_filename: ./checkpoints_regression/UNet.0.200.mdlus
+        reg_ckpt_filename: <regression_checkpoint.mdlus>
         # Path to checkpoint filename for the mean predictor model
 
 # Parameters for wandb logging
