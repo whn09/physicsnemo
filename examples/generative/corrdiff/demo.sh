@@ -27,7 +27,9 @@ HYDRA_FULL_ERROR=1 python generate.py --config-name="config_generate_hrrr_mini.y
   ++generation.io.reg_ckpt_filename=./checkpoints_regression/UNet.0.20224.mdlus
 
 # Taiwan dataset
-python train.py --config-name=config_training_taiwan_regression.yaml ++training.hp.total_batch_size=128
-torchrun --standalone --nnodes=1 --nproc_per_node=8 train.py
+python train.py --config-name=config_training_taiwan_regression.yaml ++training.hp.total_batch_size=2
+torchrun --standalone --nnodes=1 --nproc_per_node=8 train.py --config-name=config_training_taiwan_regression.yaml ++training.hp.total_batch_size=2
+python train.py --config-name=config_training_taiwan_diffusion.yaml ++training.hp.total_batch_size=2
+torchrun --standalone --nnodes=1 --nproc_per_node=8 train.py --config-name=config_training_taiwan_diffusion.yaml ++training.hp.total_batch_size=2
 python generate.py --config-name=config_generate_taiwan.yaml
 python score_samples.py path=<PATH_TO_NC_FILE> output=<OUTPUT_FILE>

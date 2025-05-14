@@ -64,7 +64,7 @@ dataset:
 # Training parameters
 training:
     hp:
-        training_duration: 20000
+        training_duration: 200
         # Training duration based on the number of processed samples, default: 200000000
         lr_rampup: 10000000
         # Rampup for learning rate, in number of samples

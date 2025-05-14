@@ -247,7 +247,7 @@ class NetCDFWriter:
         self.input_group = f.createGroup("input")
 
         for variable in output_channels:
-            name = variable.name + variable.level
+            name = str(variable.name) + str(variable.level)
             self.truth_group.createVariable(name, "f", dimensions=("time", "y", "x"))
             self.prediction_group.createVariable(
                 name, "f", dimensions=("ensemble", "time", "y", "x")
@@ -256,7 +256,7 @@ class NetCDFWriter:
         # setup input data in netCDF
 
         for variable in input_channels:
-            name = variable.name + variable.level
+            name = str(variable.name) + str(variable.level)
             self.input_group.createVariable(name, "f", dimensions=("time", "y", "x"))
 
     def write_input(self, channel_name, time_index, val):
