@@ -59,7 +59,7 @@ defaults:
 # Modify or add below parameters that should be passed as argument to the
 # user-defined dataset class.
 dataset:
-    data_path: ./data/2023-01-24-cwb-4years.zarr
+    data_path: ./modulus_datasets_cwa_vv1/modulus_datasets_cwa_vv1/cwa_dataset/cwa_dataset.zarr
 
 model:
     hr_mean_conditioning: false
@@ -68,8 +68,8 @@ model:
 # Training parameters
 training:
     hp:
-        training_duration: 200000000
-        # Training duration based on the number of processed samples
+        training_duration: 20000
+        # Training duration based on the number of processed samples, default: 200000000
         lr_rampup: 10000000
         # Rampup for learning rate, in number of samples
     io:

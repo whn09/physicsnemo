@@ -16,12 +16,18 @@ cd ~/physicsnemo & pip install -e .
 pip install hydra-core wandb nvtx opencv-python dask
 
 # HRRR-Mini example
-python train.py --config-name=config_training_hrrr_mini_regression.yaml  # Duration: A few hours on a single A100 GPU (2m images)
+python train.py --config-name=config_training_hrrr_mini_regression.yaml ++training.hp.total_batch_size=128  # Duration: A few hours on a single A100 GPU (2m images)
 
 python train.py --config-name=config_training_hrrr_mini_diffusion.yaml \
-  ++training.io.regression_checkpoint_path=./checkpoints_regression/UNet.0.20224.mdlus
+  ++training.io.regression_checkpoint_path=./checkpoints_regression/UNet.0.20224.mdlus \
+  ++training.hp.total_batch_size=128
 
 HYDRA_FULL_ERROR=1 python generate.py --config-name="config_generate_hrrr_mini.yaml" \
   ++generation.io.res_ckpt_filename=./checkpoints_diffusion/EDMPrecondSuperResolution.0.80128.mdlus \
   ++generation.io.reg_ckpt_filename=./checkpoints_regression/UNet.0.20224.mdlus
 
+# Taiwan dataset
+python train.py --config-name=config_training_taiwan_regression.yaml ++training.hp.total_batch_size=128
+torchrun --standalone --nnodes=1 --nproc_per_node=8 train.py
+python generate.py --config-name=config_generate_taiwan.yaml
+python score_samples.py path=<PATH_TO_NC_FILE> output=<OUTPUT_FILE>
