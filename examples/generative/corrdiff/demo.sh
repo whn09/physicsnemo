@@ -39,3 +39,14 @@ python generate.py --config-name=config_generate_taiwan.yaml \
 
 pip install xskillscore
 python score_samples.py corrdiff_output.nc score_samples_result.nc
+
+# CustomWRF example
+python train.py --config-name=config_training_custom_wrf_regression.yaml ++training.hp.total_batch_size=64  # Duration: A few hours on a single A100 GPU (2m images)
+
+python train.py --config-name=config_training_custom_wrf_diffusion.yaml \
+  ++training.io.regression_checkpoint_path=./checkpoints_regression/UNet.0.40064.mdlus \
+  ++training.hp.total_batch_size=64
+
+python generate.py --config-name=config_generate_custom_wrf.yaml \
+  ++generation.io.res_ckpt_filename=./checkpoints_diffusion/EDMPrecondSuperResolution.0.40064.mdlus \
+  ++generation.io.reg_ckpt_filename=./checkpoints_regression/UNet.0.40064.mdlus
