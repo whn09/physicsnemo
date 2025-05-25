@@ -22,11 +22,23 @@ from typing import List, Tuple, Union
 import numpy as np
 from numba import jit, prange
 import xarray as xr
+import scipy.ndimage
 
 from physicsnemo.utils.generative import convert_datetime_to_cftime
 
 from .base import ChannelMetadata, DownscalingDataset
 
+def _resize(arr, shape):
+    # arr: (N, C, H, W), shape: (new_H, new_W)
+    N, C, H, W = arr.shape
+    out = np.stack([
+        np.stack([
+            scipy.ndimage.zoom(arr[n, c], (shape[0]/H, shape[1]/W), order=1)
+            for c in range(C)
+        ], axis=0)
+        for n in range(N)
+    ], axis=0)
+    return out
 
 class CustomWRFDataset(DownscalingDataset):
     """Reader for reduced-size WRF dataset used for CorrDiff."""
@@ -57,6 +69,7 @@ class CustomWRFDataset(DownscalingDataset):
 
         self.img_shape = self.output.shape[-2:]
         self.upsample_factor = self.output.shape[-1] // self.input.shape[-1]
+        print('self.upsample_factor:', self.upsample_factor)
 
         # load normalization stats
         with open(stats_path, "r") as f:
@@ -109,8 +122,11 @@ class CustomWRFDataset(DownscalingDataset):
 
     def time(self) -> List:
         """Get time values from the dataset."""
+        # datetimes = (
+        #     datetime.datetime.utcfromtimestamp(t.tolist() / 1e9) for t in self.times
+        # )
         datetimes = (
-            datetime.datetime.utcfromtimestamp(t.tolist() / 1e9) for t in self.times
+            datetime.datetime.strptime(t, '%Y%m%d%H') for t in self.times
         )
         return [convert_datetime_to_cftime(t) for t in datetimes]
 
@@ -151,6 +167,11 @@ def _load_dataset(data_path, group, variables=None, stack_axis=1):
         if variables is None:
             variables = list(ds.keys())
         data = np.stack([ds[v] for v in variables], axis=stack_axis)
+        # # TODO: force resize
+        # if group == 'input':
+        #     data = _resize(data, (16,16))
+        # elif group == 'output':
+        #     data = _resize(data, (64,64))
     return (data, variables)
 
 

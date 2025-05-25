@@ -17,16 +17,16 @@
 hydra:
     job:
           chdir: false
-          name: custom_wrf_diffusion
+          name: generate_custom_wrf
     run:
-          dir: ./output/${hydra:job.name}
+          dir: ./outputs/${hydra:job.name}
     searchpath:
           - pkg://conf/base # Do not modify
 
-# Base parameters for dataset, model, training, and validation
+# Base parameters for dataset, model, and generation
 defaults:
 
-    - dataset: custom_wrf 
+    - dataset: custom_wrf
     # The dataset type for training.
     # Accepted values:
     #   `gefs_hrrr`: full GEFS-HRRR dataset for continental US.
@@ -34,25 +34,11 @@ defaults:
     #   `cwb`: full CWB dataset for Taiwan.
     #   `custom`: user-defined dataset. Parameters need to be specified below.
 
-    - model: diffusion
-    # The model type.
+    - generation: non_patched
+    # The base generation parameters.
     # Accepted values:
-    #     `regression`: a regression UNet for deterministic predictions
-    #     `lt_aware_ce_regression`: similar to `regression` but with lead time
-    #       conditioning
-    #     `diffusion`: a diffusion UNet for residual predictions
-    #     `patched_diffusion`: a more memory-efficient diffusion model
-    #     `lt_aware_patched_diffusion`: similar to `patched_diffusion` but
-    #       with lead time conditioning
-
-    - model_size: mini
-    # The model size configuration.
-    # Accepted values:
-    #     `normal`: normal model size
-    #     `mini`: smaller model size for fast experiments
-
-    - training: ${model}
-    # The base training parameters. Determined by the model type.
+    #     `patched`: base parameters for a patch-based model
+    #     `non_patched`: base parameters for a non-patched model
 
 
 # Dataset parameters. Used for `custom` dataset type.
@@ -70,21 +56,23 @@ dataset:
     invariant_variables: ['elev_mean', 'lsm_mean']
     # Names or indices of invariant channels. Optional.
 
-# Training parameters
-training:
-    hp:
-        training_duration: 80000
-        # Training duration based on the number of processed samples, default: 8000000
+# Generation parameters to specialize
+generation:
+    num_ensembles: 2
+    # int, number of ensembles to generate per input
+    seed_batch_size: 1
+    # int, size of the batched inference
+    times:
+        - 2016-09-30T18:00:00
+    # List[str], time stamps in ISO 8601 format. Replace and list desired target
+    # time stamps.
     io:
-        print_progress_freq: 10000
-        regression_checkpoint_path: <regression_checkpoint.mdlus>
-        # Path to load the regression checkpoint
+        res_ckpt_filename: <diffusion_checkpoint.mdlus> 
+        # Path to checkpoint file for the diffusion model  
+        reg_ckpt_filename: <regression_checkpoint.mdlus>
+        # Path to checkpoint filename for the mean predictor model
 
 # Parameters for wandb logging
 wandb:
     mode: offline
     # Configure whether to use wandb: "offline", "online", "disabled"
-    results_dir: "./wandb"
-    # Directory to store wandb results
-    watch_model: false
-    # If true, wandb will track model parameters and gradients
