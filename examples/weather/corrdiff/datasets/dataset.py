@@ -30,7 +30,7 @@ from datasets import base, cwb, hrrrmini, gefs_hrrr, custom_wrf
 # this maps all known dataset types to the corresponding init function
 known_datasets = {
     "cwb": cwb.get_zarr_dataset,
-    "hrrr_mini": hrrrmini.HRRRMiniDataset,
+    "hrrr_mini": hrrrmini.HRRRMiniDataset, 
     "gefs_hrrr": gefs_hrrr.HrrrForecastGEFSDataset,
     "custom_wrf": custom_wrf.CustomWRFDataset,
 }
