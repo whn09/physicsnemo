@@ -70,12 +70,15 @@ class CustomWRFDataset(DownscalingDataset):
         self.img_shape = self.output.shape[-2:]
         self.upsample_factor = self.output.shape[-1] // self.input.shape[-1]
         print('self.upsample_factor:', self.upsample_factor)
+        print('self.input_variables:', self.input_variables, 'self.output_variables:', self.output_variables, 'self.output.shape:', self.output.shape, 'self.input.shape:', self.input.shape)
 
         # load normalization stats
         with open(stats_path, "r") as f:
             stats = json.load(f)
         (input_mean, input_std) = _load_stats(stats, self.input_variables, "input")
         (inv_mean, inv_std) = _load_stats(stats, self.invariant_variables, "invariant")
+        print('inv_mean:', inv_mean)
+        print('inv_std:', inv_std)
         self.input_mean = np.concatenate([input_mean, inv_mean], axis=0)
         self.input_std = np.concatenate([input_std, inv_std], axis=0)
         (self.output_mean, self.output_std) = _load_stats(
@@ -134,13 +137,25 @@ class CustomWRFDataset(DownscalingDataset):
         """Get the (height, width) of the data (same for input and output)."""
         return self.img_shape
 
+    # def normalize_input(self, x: np.ndarray) -> np.ndarray:
+    #     """Convert input from physical units to normalized data."""
+    #     return (x - self.input_mean) / self.input_std
+
+    # def denormalize_input(self, x: np.ndarray) -> np.ndarray:
+    #     """Convert input from normalized data to physical units."""
+    #     return x * self.input_std + self.input_mean
+    
     def normalize_input(self, x: np.ndarray) -> np.ndarray:
         """Convert input from physical units to normalized data."""
-        return (x - self.input_mean) / self.input_std
+        # 对标准差为0的情况添加小常数
+        std_safe = np.where(self.input_std == 0, 1.0, self.input_std)
+        return (x - self.input_mean) / std_safe
 
     def denormalize_input(self, x: np.ndarray) -> np.ndarray:
         """Convert input from normalized data to physical units."""
-        return x * self.input_std + self.input_mean
+        # 对标准差为0的情况，直接返回均值
+        std_safe = np.where(self.input_std == 0, 1.0, self.input_std)
+        return x * std_safe + self.input_mean
 
     def normalize_output(self, x: np.ndarray) -> np.ndarray:
         """Convert output from physical units to normalized data."""
